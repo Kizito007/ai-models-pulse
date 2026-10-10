@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Models Pulse - Real-time AI & Model Observatory</title>
+  <meta name="description" content="Live observatory tracking frontier AI models, open-weights releases, daily research papers, and breakthroughs with live internet data.">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              500: '#14b8a6',
+              600: '#0d9488',
+              900: '#134e4a',
+            },
+            dark: {
+              900: '#0b0f17',
+              850: '#0f172a',
+              800: '#1e293b',
+              700: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#080c14] text-slate-100 min-h-screen font-sans selection:bg-teal-500 selection:text-black">
+
+  <!-- Background decorative glows -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed top-1/3 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed bottom-10 left-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-[#080c14]/85 border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-cyan-400 text-black shadow-lg shadow-teal-500/25">
+            <i data-lucide="cpu" class="w-5 h-5"></i>
+            <span class="absolute -top-1 -right-1 flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+            </span>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-teal-300 bg-clip-text text-transparent">AI MODELS PULSE</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold uppercase flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                LIVE INTERNET
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 hidden sm:block">Live Models, Real-time Weights & Research Stream</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center space-x-1 sm:space-x-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+          <button id="tab-pulse" onclick="switchTab('pulse')" class="tab-btn active px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-1.5">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+            <span>Live Pulse</span>
+          </button>
+          <button id="tab-radar" onclick="switchTab('radar')" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-1.5">
+            <i data-lucide="layers" class="w-4 h-4"></i>
+            <span>Live Models Radar</span>
+          </button>
+          <button id="tab-compare" onclick="switchTab('compare')" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-1.5">
+            <i data-lucide="columns-2" class="w-4 h-4"></i>
+            <span>Live Compare</span>
+          </button>
+          <button id="tab-bookmarks" onclick="switchTab('bookmarks')" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-1.5">
+            <i data-lucide="bookmark" class="w-4 h-4"></i>
+            <span>Saved (<span id="bookmark-count">0</span>)</span>
+          </button>
+        </nav>
+
+        <!-- Right Side: Sync & Refresh -->
+        <div class="flex items-center space-x-3">
+          <div class="hidden md:flex flex-col text-right text-xs">
+            <div class="flex items-center space-x-1.5 justify-end text-emerald-400">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="font-mono font-medium">Internet Synced</span>
+            </div>
+            <span id="last-updated-label" class="text-slate-500 font-mono text-[11px]">Syncing...</span>
+          </div>
+
+          <button id="refresh-btn" onclick="triggerManualRefresh()" title="Sync Feeds & Models from Internet Now" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 transition flex items-center space-x-1.5">
+            <i data-lucide="rotate-cw" id="refresh-icon" class="w-4 h-4"></i>
+            <span class="text-xs font-semibold hidden sm:inline">Sync Live</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Metric Strip -->
+  <section class="border-b border-slate-800/60 bg-slate-900/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+        <!-- Quick stats -->
+        <div class="flex flex-wrap items-center gap-4 text-slate-300">
+          <div class="flex items-center space-x-1.5">
+            <i data-lucide="newspaper" class="w-4 h-4 text-teal-400"></i>
+            <span class="text-slate-400">Live Articles:</span>
+            <span id="stat-articles" class="font-mono font-bold text-white">-</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <i data-lucide="file-text" class="w-4 h-4 text-cyan-400"></i>
+            <span class="text-slate-400">Daily Papers:</span>
+            <span id="stat-papers" class="font-mono font-bold text-white">-</span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+            <span class="text-slate-400">Live Models Tracked:</span>
+            <span id="stat-models" class="font-mono font-bold text-white">-</span>
+          </div>
+        </div>
+
+        <!-- Trending Model Pills -->
+        <div class="flex items-center space-x-2 overflow-x-auto py-0.5" id="trending-container">
+          <span class="text-slate-500 font-mono flex items-center gap-1">
+            <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-500"></i> Trending:
+          </span>
+          <div id="trending-tags-list" class="flex items-center space-x-1.5">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ================= VIEW 1: LIVE PULSE ================= -->
+    <div id="view-pulse" class="space-y-6">
+
+      <!-- Filters & Search Toolbar -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 backdrop-blur space-y-4">
+        
+        <!-- Search Row -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 justify-between">
+          
+          <!-- Search input -->
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="feed-search" placeholder="Live search: e.g. DeepSeek-R1, Gemini 2.0, o1, Qwen 2.5, reasoning, transformers..."
+              class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-200 placeholder-slate-500 transition">
+            <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Controls: Paper toggle & Layout toggle -->
+          <div class="flex items-center gap-2 self-end md:self-auto">
+            <button id="toggle-papers" onclick="togglePapersOnly()" class="px-3 py-2 rounded-xl text-xs font-medium border border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700 flex items-center space-x-1.5 transition">
+              <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>Papers Only</span>
+            </button>
+
+            <div class="flex items-center bg-slate-950/60 border border-slate-800 rounded-xl p-0.5">
+              <button onclick="setLayout('grid')" id="btn-layout-grid" class="p-1.5 rounded-lg text-teal-400 bg-slate-800 hover:text-white transition" title="Grid Layout">
+                <i data-lucide="grid" class="w-4 h-4"></i>
+              </button>
+              <button onclick="setLayout('list')" id="btn-layout-list" class="p-1.5 rounded-lg text-slate-400 hover:text-white transition" title="List Layout">
+                <i data-lucide="list" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sorters & Granular Filters Row -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800/60 text-xs">
+          <div class="flex flex-wrap items-center gap-3">
+            
+            <!-- Sort By dropdown -->
+            <div class="flex items-center space-x-1.5">
+              <span class="text-slate-500 font-mono uppercase text-[11px] flex items-center gap-1">
+                <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-teal-400"></i> Sort:
+              </span>
+              <select id="feed-sort-select" onchange="onSortChange(this.value)" class="bg-slate-950/80 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-teal-500">
+                <option value="latest">⏱️ Latest / Newest First</option>
+                <option value="upvotes">🔥 Most Upvoted / Popular</option>
+                <option value="oldest">⏳ Oldest First</option>
+                <option value="title">🔤 Title (A - Z)</option>
+              </select>
+            </div>
+
+            <!-- Time Range dropdown -->
+            <div class="flex items-center space-x-1.5">
+              <span class="text-slate-500 font-mono uppercase text-[11px] flex items-center gap-1">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-cyan-400"></i> Time:
+              </span>
+              <select id="feed-time-select" onchange="onTimeChange(this.value)" class="bg-slate-950/80 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-teal-500">
+                <option value="all">All Time</option>
+                <option value="24h">Past 24 Hours</option>
+                <option value="7d">Past 7 Days</option>
+                <option value="30d">Past 30 Days</option>
+              </select>
+            </div>
+
+            <!-- Source dropdown -->
+            <div class="flex items-center space-x-1.5">
+              <span class="text-slate-500 font-mono uppercase text-[11px] flex items-center gap-1">
+                <i data-lucide="rss" class="w-3.5 h-3.5 text-purple-400"></i> Source:
+              </span>
+              <select id="feed-source-select" onchange="onSourceChange(this.value)" class="bg-slate-950/80 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-teal-500">
+                <option value="all">All Sources (9 feeds)</option>
+                <option value="HF Daily Papers">🤗 Hugging Face Daily Papers</option>
+                <option value="Hugging Face Blog">🤗 Hugging Face Blog</option>
+                <option value="Google DeepMind">✨ Google DeepMind</option>
+                <option value="OpenAI News">🔮 OpenAI News</option>
+                <option value="arXiv cs.CL (Language & LLMs)">📄 arXiv cs.CL (LLMs)</option>
+                <option value="arXiv cs.AI (Artificial Intelligence)">📄 arXiv cs.AI</option>
+                <option value="TechCrunch AI">⚡ TechCrunch AI</option>
+                <option value="MIT Technology Review">🏛️ MIT Technology Review</option>
+                <option value="The Verge AI">📰 The Verge AI</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Active filters counter & reset -->
+          <div class="flex items-center space-x-2">
+            <span id="active-results-count" class="text-slate-400 font-mono text-[11px]">Loading...</span>
+            <button onclick="resetFilters()" class="text-slate-500 hover:text-teal-400 transition text-[11px] underline">Reset</button>
+          </div>
+        </div>
+
+        <!-- Filter Pills Bar: Categories & Model Tags -->
+        <div class="space-y-2 pt-2 border-t border-slate-800/50">
+          <!-- Category filters -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+            <span class="text-slate-500 font-mono text-[11px] uppercase mr-1">Category:</span>
+            <button onclick="setCategory('all')" class="cat-pill active px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-950 text-slate-300 font-medium whitespace-nowrap transition">All</button>
+            <button onclick="setCategory('LLMs & Reasoning')" class="cat-pill px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-950 text-slate-300 font-medium whitespace-nowrap transition">🧠 LLMs & Reasoning</button>
+            <button onclick="setCategory('Open Weights')" class="cat-pill px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-950 text-slate-300 font-medium whitespace-nowrap transition">🔓 Open Weights</button>
+            <button onclick="setCategory('Multimodal & Vision')" class="cat-pill px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-950 text-slate-300 font-medium whitespace-nowrap transition">👁️ Multimodal & Vision</button>
+            <button onclick="setCategory('Research Papers')" class="cat-pill px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-950 text-slate-300 font-medium whitespace-nowrap transition">📄 Research Papers</button>
+            <button onclick="setCategory('Agents & Code')" class="cat-pill px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-950 text-slate-300 font-medium whitespace-nowrap transition">🤖 Agents & Code</button>
+            <button onclick="setCategory('Infrastructure & Hardware')" class="cat-pill px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-950 text-slate-300 font-medium whitespace-nowrap transition">⚡ Hardware & Compute</button>
+          </div>
+
+          <!-- Model Tag filters -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+            <span class="text-slate-500 font-mono text-[11px] uppercase mr-1">Model Tag:</span>
+            <button onclick="setModelTag('all')" class="tag-pill active px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-slate-400 font-mono whitespace-nowrap transition">All Models</button>
+            <button onclick="setModelTag('DeepSeek')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-emerald-400 font-mono whitespace-nowrap transition">DeepSeek</button>
+            <button onclick="setModelTag('Gemini')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-blue-400 font-mono whitespace-nowrap transition">Gemini</button>
+            <button onclick="setModelTag('GPT / OpenAI')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-teal-400 font-mono whitespace-nowrap transition">GPT / OpenAI</button>
+            <button onclick="setModelTag('Claude')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-amber-400 font-mono whitespace-nowrap transition">Claude</button>
+            <button onclick="setModelTag('Llama')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-purple-400 font-mono whitespace-nowrap transition">Llama</button>
+            <button onclick="setModelTag('Qwen')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-rose-400 font-mono whitespace-nowrap transition">Qwen</button>
+            <button onclick="setModelTag('Mistral')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-orange-400 font-mono whitespace-nowrap transition">Mistral</button>
+            <button onclick="setModelTag('Flux / Image')" class="tag-pill px-2 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-yellow-400 font-mono whitespace-nowrap transition">Flux / Diffusion</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feed Container -->
+      <div id="feed-status" class="hidden text-center py-12 text-slate-400 space-y-3">
+        <div class="inline-block animate-spin w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full"></div>
+        <p class="text-sm">Fetching and indexing live AI feeds from the internet...</p>
+      </div>
+
+      <div id="feed-empty" class="hidden text-center py-16 bg-slate-900/30 border border-slate-800/80 rounded-2xl">
+        <i data-lucide="inbox" class="w-12 h-12 mx-auto text-slate-600 mb-3"></i>
+        <h3 class="text-base font-semibold text-slate-300">No matching items found</h3>
+        <p class="text-xs text-slate-500 mt-1">Try clearing your filters or selecting a broader time range.</p>
+        <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-xl text-teal-400 border border-slate-700 transition">
+          Reset All Filters
+        </button>
+      </div>
+
+      <!-- Articles Grid / List -->
+      <div id="feed-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Load More / Pagination -->
+      <div id="pagination-controls" class="flex justify-center pt-4">
+        <button id="load-more-btn" onclick="loadMore()" class="hidden px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-xl text-xs font-semibold tracking-wide transition shadow-sm">
+          Load More Happenings
+        </button>
+      </div>
+    </div>
+
+
+    <!-- ================= VIEW 2: MODEL RADAR (LIVE DATA) ================= -->
+    <div id="view-radar" class="hidden space-y-6">
+      
+      <!-- Real-Time World Drops Live Stream Banner -->
+      <div class="bg-gradient-to-r from-red-950/40 via-slate-900 to-slate-900 border border-red-900/40 rounded-2xl p-4 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center space-x-2">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+            </span>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-red-400 flex items-center gap-1.5">
+              <span>LIVE WORLD DROP STREAM</span>
+              <span class="text-[10px] text-slate-400 font-normal hidden sm:inline">• Models published to the internet right now</span>
+            </span>
+          </div>
+          <span id="sse-status" class="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Real-time Feed Active
+          </span>
+        </div>
+        
+        <!-- Live Drops Horizontal Scroll Strip -->
+        <div id="live-drops-strip" class="flex items-center gap-2.5 overflow-x-auto py-1 text-xs">
+          <!-- Populated live in real-time by SSE -->
+          <div class="text-slate-500 font-mono text-xs py-1">Connecting to live release stream...</div>
+        </div>
+      </div>
+
+      <!-- Radar Intro Header -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-900/90 to-teal-950/30 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-mono mb-3">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Global AI Model Observatory • 1,000,000+ Models Live</span>
+          </div>
+          <h2 class="text-2xl font-bold tracking-tight text-white">Live AI Models Radar</h2>
+          <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+            Direct real-time window into every AI model worldwide. Search any model, fine-tune, or quantization in existence across Hugging Face & OpenRouter with real-time community stars, download velocities, and benchmarks.
+          </p>
+        </div>
+
+        <!-- Controls for models: Search, Sorters, Filters -->
+        <div class="mt-6 space-y-3 pt-4 border-t border-slate-800">
+          
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <!-- Category type pills -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="filterRadarType('all')" class="radar-type-btn active px-3 py-1 rounded-lg text-xs font-medium border border-slate-800 bg-slate-950 text-slate-300 transition">All Types</button>
+              <button onclick="filterRadarType('open weights')" class="radar-type-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-800 bg-slate-950 text-emerald-400 transition">Open Weights</button>
+              <button onclick="filterRadarType('proprietary')" class="radar-type-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-800 bg-slate-950 text-cyan-400 transition">Proprietary API</button>
+              <button onclick="filterRadarModality('text')" class="radar-modality-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-800 bg-slate-950 text-indigo-400 transition">Text / LLMs</button>
+              <button onclick="filterRadarModality('multimodal')" class="radar-modality-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-800 bg-slate-950 text-amber-400 transition">Vision & Multimodal</button>
+              <button onclick="filterRadarModality('image')" class="radar-modality-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-800 bg-slate-950 text-yellow-400 transition">Image Generation</button>
+            </div>
+
+            <!-- Radar Sorter & Search -->
+            <div class="flex items-center gap-3">
+              <input type="text" id="radar-search" oninput="onRadarSearch(this.value)" placeholder="Search ANY model in the world..."
+                class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-teal-500 w-60">
+
+              <div class="flex items-center space-x-1.5 text-xs font-mono">
+                <span class="text-slate-500 uppercase text-[11px]">Sort:</span>
+                <select id="radar-sort-select" onchange="onRadarSortChange(this.value)" class="bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-teal-500">
+                  <option value="likes">❤️ Community Stars</option>
+                  <option value="downloads">📥 Monthly Downloads</option>
+                  <option value="latest">⏱️ Recently Added</option>
+                  <option value="name">🔤 Name (A - Z)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lab / Family quick filter row -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pt-1 text-xs">
+            <span class="text-slate-500 font-mono text-[11px] uppercase mr-1">Lab / Family:</span>
+            <button onclick="filterRadarLab('all')" class="radar-lab-btn active px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-slate-300 font-mono transition">All Labs</button>
+            <button onclick="filterRadarLab('anthropic')" class="radar-lab-btn px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-amber-400 font-mono transition">Anthropic (Claude)</button>
+            <button onclick="filterRadarLab('openai')" class="radar-lab-btn px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-teal-400 font-mono transition">OpenAI (GPT / o-series)</button>
+            <button onclick="filterRadarLab('google')" class="radar-lab-btn px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-blue-400 font-mono transition">Google DeepMind (Gemini)</button>
+            <button onclick="filterRadarLab('deepseek')" class="radar-lab-btn px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-emerald-400 font-mono transition">DeepSeek</button>
+            <button onclick="filterRadarLab('meta')" class="radar-lab-btn px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-purple-400 font-mono transition">Meta (Llama)</button>
+            <button onclick="filterRadarLab('qwen')" class="radar-lab-btn px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-rose-400 font-mono transition">Qwen</button>
+            <button onclick="filterRadarLab('mistral')" class="radar-lab-btn px-2.5 py-0.5 rounded-md border border-slate-800 bg-slate-950 text-orange-400 font-mono transition">Mistral</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Models Grid -->
+      <div id="models-radar-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- Rendered dynamically by JS from live internet API -->
+      </div>
+    </div>
+
+
+    <!-- ================= VIEW 3: LIVE MODEL COMPARISON ================= -->
+    <div id="view-compare" class="hidden space-y-6">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="scale" class="w-5 h-5 text-teal-400"></i>
+              Live Side-by-Side Model Comparison
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Select any 3 live models from the internet to compare community stars, download traction, parameters, architecture, licensing, and benchmarks.</p>
+          </div>
+          <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Real-time Metrics
+          </span>
+        </div>
+
+        <!-- Selector dropdowns with Live Searchable Options -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Model A (Live)</label>
+            <select id="compare-select-1" onchange="updateComparison()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+              <!-- Options populated dynamically from live models -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Model B (Live)</label>
+            <select id="compare-select-2" onchange="updateComparison()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+              <!-- Options populated dynamically from live models -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Model C (Live)</label>
+            <select id="compare-select-3" onchange="updateComparison()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+              <!-- Options populated dynamically from live models -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300 border-collapse">
+            <thead class="bg-slate-950/80 border-b border-slate-800 font-mono text-[11px] uppercase text-slate-400">
+              <tr>
+                <th class="py-3 px-4 w-1/4">Specification / Live Metric</th>
+                <th id="comp-header-1" class="py-3 px-4 w-1/4 font-semibold text-teal-300">Model 1</th>
+                <th id="comp-header-2" class="py-3 px-4 w-1/4 font-semibold text-cyan-300">Model 2</th>
+                <th id="comp-header-3" class="py-3 px-4 w-1/4 font-semibold text-indigo-300">Model 3</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-body" class="divide-y divide-slate-800/60 font-mono">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ================= VIEW 4: BOOKMARKS ================= -->
+    <div id="view-bookmarks" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="bookmark" class="w-5 h-5 text-teal-400"></i>
+            Saved Articles & Research
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Articles bookmarked in this browser session.</p>
+        </div>
+        <button onclick="clearAllBookmarks()" id="clear-bookmarks-btn" class="px-3 py-1.5 rounded-xl border border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-900/30 text-xs font-medium transition">
+          Clear All Saved
+        </button>
+      </div>
+
+      <div id="bookmarks-empty" class="text-center py-16 bg-slate-900/30 border border-slate-800/80 rounded-2xl">
+        <i data-lucide="bookmark-minus" class="w-12 h-12 mx-auto text-slate-600 mb-3"></i>
+        <h3 class="text-base font-semibold text-slate-300">No saved items yet</h3>
+        <p class="text-xs text-slate-500 mt-1">Click the bookmark icon on any paper or feed item to save it here for later reference.</p>
+      </div>
+
+      <div id="bookmarks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal: Article Details & Paper Abstract -->
+  <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div id="modal-content" class="space-y-4">
+        <!-- Dynamic modal content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 border border-teal-500/50 text-slate-100 text-xs font-medium px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 pointer-events-none">
+    <i data-lucide="check-circle" id="toast-icon" class="w-4 h-4 text-teal-400"></i>
+    <span id="toast-text">Success</span>
+  </div>
+
+  <footer class="mt-16 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500 space-y-2">
+    <div class="flex items-center justify-center space-x-2 font-mono">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span>AI Models Pulse Engine • Live Internet Ingestion via Go</span>
+    </div>
+    <p>Live Real-Time Data from Hugging Face Models & Daily Papers API, arXiv, Google DeepMind, and OpenAI.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

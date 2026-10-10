@@ -1,0 +1,129 @@
+/* Custom CSS Enhancements & Full Responsive Polish */
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080c14;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Hide scrollbar utility for touch scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Tab buttons */
+.tab-btn {
+  color: #94a3b8;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tab-btn:hover {
+  color: #f1f5f9;
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+.tab-btn.active {
+  background-color: #0d9488;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+}
+
+/* Category & Tag pills */
+.cat-pill.active {
+  background-color: #0d9488 !important;
+  color: #ffffff !important;
+  border-color: #14b8a6 !important;
+}
+
+.tag-pill.active {
+  background-color: #1e293b !important;
+  border-color: #14b8a6 !important;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.25);
+}
+
+.radar-type-btn.active,
+.radar-lab-btn.active {
+  background-color: #1e293b !important;
+  border-color: #14b8a6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.2);
+}
+
+.radar-modality-btn.active {
+  background-color: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+
+/* Card hover animation */
+.feed-card {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  word-break: break-word;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .feed-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(13, 148, 136, 0.15);
+  }
+}
+
+/* Responsive List layout styles */
+.layout-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+}
+
+@media (min-width: 768px) {
+  .layout-list .feed-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 1rem !important;
+  }
+  .layout-list .feed-card .card-body {
+    flex: 1;
+  }
+}
+
+/* Mobile sticky column for comparison table */
+@media (max-width: 640px) {
+  .table-sticky-col {
+    position: sticky;
+    left: 0;
+    background-color: #0b0f17;
+    z-index: 10;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Touch-friendly horizontal strip */
+.touch-scroll-strip {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Mobile safe area */
+body {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}

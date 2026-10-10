@@ -1,0 +1,6 @@
+.git
+.github
+*.exe
+server.exe
+*.log
+scratch/
