@@ -53,14 +53,27 @@ function switchTab(tabId) {
   
   tabs.forEach(t => {
     const btn = document.getElementById(`tab-${t}`);
+    const mobBtn = document.getElementById(`mob-tab-${t}`);
     const view = document.getElementById(`view-${t}`);
-    if (btn && view) {
+    if (view) {
       if (t === tabId) {
-        btn.classList.add('active');
         view.classList.remove('hidden');
       } else {
-        btn.classList.remove('active');
         view.classList.add('hidden');
+      }
+    }
+    if (btn) {
+      if (t === tabId) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    }
+    if (mobBtn) {
+      if (t === tabId) {
+        mobBtn.classList.add('active');
+      } else {
+        mobBtn.classList.remove('active');
       }
     }
   });
@@ -702,6 +715,8 @@ function toggleBookmark(itemId) {
 function updateBookmarkCount() {
   const countEl = document.getElementById('bookmark-count');
   if (countEl) countEl.textContent = state.bookmarks.length;
+  const mobCountEl = document.getElementById('mob-bookmark-count');
+  if (mobCountEl) mobCountEl.textContent = state.bookmarks.length;
 }
 
 function clearAllBookmarks() {
